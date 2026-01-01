@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '../../../lib/api';
 import { Trash2, Edit, Eye, Plus } from 'lucide-react';
+import ProtectedRoute from '../../../components/ProtectedRoute';
 
-export default function MyAdsPage() {
+function MyAdsPageContent() {
     const [ads, setAds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -35,7 +36,16 @@ export default function MyAdsPage() {
         }
     };
 
-    if (loading) return <div className="p-8">Chargement...</div>;
+    if (loading) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Chargement...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -82,5 +92,16 @@ export default function MyAdsPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+/**
+ * Page protégée - Accessible uniquement aux LIVREUR_GP
+ */
+export default function MyAdsPage() {
+    return (
+        <ProtectedRoute requiredRole="LIVREUR_GP">
+            <MyAdsPageContent />
+        </ProtectedRoute>
     );
 }

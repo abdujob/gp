@@ -1,23 +1,55 @@
 'use client';
+
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import api from '../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginPage() {
-    const router = useRouter();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
+    /**
+     * Validation du formulaire
+     */
+    const validateForm = () => {
+        if (!formData.email || !formData.password) {
+            setError('Tous les champs sont requis');
+            return false;
+        }
+
+        // Validation email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError('Adresse email invalide');
+            return false;
+        }
+
+        return true;
+    };
+
+    /**
+     * Gestion de la soumission du formulaire
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+
+        // Validation
+        if (!validateForm()) {
+            return;
+        }
+
+        setLoading(true);
+
         try {
-            const res = await api.post('/auth/login', formData);
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('user', JSON.stringify(res.data.user)); // Store full user including role
-            router.push('/dashboard');
+            await login(formData);
+            // La redirection est gérée par le AuthContext
         } catch (err: any) {
-            setError(err.response?.data?.msg || 'Erreur de connexion');
+            setError(err.message || 'Erreur de connexion');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -36,7 +68,11 @@ export default function LoginPage() {
                     </p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                            {error}
+                        </div>
+                    )}
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
                             <input
@@ -46,6 +82,7 @@ export default function LoginPage() {
                                 placeholder="Adresse email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                disabled={loading}
                             />
                         </div>
                         <div>
@@ -56,6 +93,7 @@ export default function LoginPage() {
                                 placeholder="Mot de passe"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                disabled={loading}
                             />
                         </div>
                     </div>
@@ -63,9 +101,10 @@ export default function LoginPage() {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                            disabled={loading}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Se connecter
+                            {loading ? 'Connexion en cours...' : 'Se connecter'}
                         </button>
                     </div>
                 </form>

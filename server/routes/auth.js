@@ -37,6 +37,7 @@ router.post('/register', async (req, res) => {
         const payload = {
             user: {
                 id: newUser.rows[0].id,
+                role: newUser.rows[0].role  // Include role for authorization
             },
         };
 
@@ -82,6 +83,7 @@ router.post('/login', async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
+                role: user.role  // Include role for authorization
             },
         };
 

@@ -1,53 +1,32 @@
 'use client';
+
 import Link from 'next/link';
-import { Package, User, PlusCircle, MessageSquare } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Package, User, PlusCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-    const [user, setUser] = useState<any>(null);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userStr = localStorage.getItem('user');
-        if (token && userStr) {
-            setUser(JSON.parse(userStr));
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        window.location.reload();
-    };
+    const { user, logout, isLivreurGP } = useAuth();
 
     return (
         <nav className="border-b bg-white shadow-sm sticky top-0 z-50">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary">
                     <Package className="w-8 h-8 text-accent" />
-                    <span>SendVoyage</span>
+                    <span>GP</span>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-6">
-                    <Link href="/how-it-works" className="text-gray-600 hover:text-primary transition-colors">
-                        Comment ça marche ?
-                    </Link>
-                    <Link href="/search" className="text-gray-600 hover:text-primary transition-colors">
-                        Rechercher
-                    </Link>
-                    {user && user.role === 'LIVREUR_GP' && (
-                        <>
-                            <Link href="/dashboard/my-ads" className="text-gray-600 hover:text-primary transition-colors">
-                                Mes annonces
-                            </Link>
-                            <Link href="/dashboard/messages" className="text-gray-600 hover:text-primary transition-colors">
-                                Messages
-                            </Link>
-                        </>
+                    {/* Liens visibles uniquement pour LIVREUR_GP */}
+                    {isLivreurGP && (
+                        <Link href="/dashboard/my-ads" className="text-gray-600 hover:text-primary transition-colors">
+                            Mes annonces
+                        </Link>
                     )}
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {user && user.role === 'LIVREUR_GP' && (
+                    {/* Bouton "Poster une annonce" visible uniquement pour LIVREUR_GP */}
+                    {isLivreurGP && (
                         <Link
                             href="/post-ad"
                             className="hidden md:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-all shadow-md"
@@ -66,7 +45,7 @@ const Navbar = () => {
                                     <User className="w-6 h-6 text-gray-700" />
                                 )}
                             </Link>
-                            <button onClick={handleLogout} className="text-sm text-red-500 hover:underline">
+                            <button onClick={logout} className="text-sm text-red-500 hover:underline">
                                 Déconnexion
                             </button>
                         </div>

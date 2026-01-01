@@ -19,12 +19,10 @@ app.get('/', (req, res) => {
 // Import Routes
 const authRoutes = require('./routes/auth');
 const adRoutes = require('./routes/ads');
-const messageRoutes = require('./routes/messages');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ads', adRoutes);
-app.use('/api/messages', messageRoutes);
 
 // Static for uploads
 app.use('/uploads', express.static('uploads'));
