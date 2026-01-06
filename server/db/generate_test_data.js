@@ -1,7 +1,11 @@
 require('dotenv').config({ path: '../.env' });
-const axios = require('axios');
+const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
-const pool = require('./index');
+
+const pool = new Pool({
+    connectionString: 'postgresql://gp_db_6f6k_user:1zEhZ9QVqTdymIXhlS5VmeCpLXMjEoPk@dpg-d5bbji1r0fns738rhc20-a.oregon-postgres.render.com/gp_db_6f6k',
+    ssl: { rejectUnauthorized: false }
+});
 
 const API_URL = 'http://localhost:5000/api';
 

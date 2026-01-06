@@ -7,12 +7,12 @@ const api = axios.create({
     },
 });
 
-// Interceptor to add token
+// Interceptor to add access token to requests
 api.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
     }
     return config;

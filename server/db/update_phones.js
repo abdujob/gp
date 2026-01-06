@@ -1,5 +1,10 @@
 require('dotenv').config({ path: '../.env' });
-const pool = require('./index');
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    connectionString: 'postgresql://gp_db_6f6k_user:1zEhZ9QVqTdymIXhlS5VmeCpLXMjEoPk@dpg-d5bbji1r0fns738rhc20-a.oregon-postgres.render.com/gp_db_6f6k',
+    ssl: { rejectUnauthorized: false }
+});
 
 async function updateAllPhones() {
     console.log('📱 Mise à jour de tous les numéros de téléphone...\n');
