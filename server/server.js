@@ -50,6 +50,10 @@ const adRoutes = require('./routes/ads');
 app.use('/api/auth', authRoutes);
 app.use('/api/ads', adRoutes);
 
+// Temporary seed route for testing
+const seedRoutes = require('./routes/seed');
+app.use('/api/seed', seedRoutes);
+
 // Static Files for Uploads
 app.use('/uploads', express.static('uploads'));
 
