@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db/pool');
+const { Client } = require('pg');
 const bcrypt = require('bcrypt');
 
 // Route temporaire pour ajouter des données de test
-router.post('/seed', async (req, res) => {
-    const client = await pool.connect();
+router.post('/', async (req, res) => {
+    const client = new Client({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        ssl: { rejectUnauthorized: false }
+    });
 
     try {
+        await client.connect();
         await client.query('BEGIN');
 
         // Créer un utilisateur test
@@ -60,7 +68,7 @@ router.post('/seed', async (req, res) => {
         console.error('Erreur seed:', error);
         res.status(500).json({ error: error.message });
     } finally {
-        client.release();
+        await client.end();
     }
 });
 
