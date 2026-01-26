@@ -30,7 +30,7 @@ interface AdCardProps {
 const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
     // Formater le message WhatsApp
     const whatsappMessage = encodeURIComponent(
-        `Bonjour, je suis intéressé par votre annonce "${ad.title}" du ${format(new Date(ad.available_date), 'd MMMM yyyy', { locale: fr })}.`
+        `Bonjour, j'ai vu votre annonce sur gp.senecoins.com et je souhaite expédier un colis. Est-ce toujours d'actualité ?`
     );
 
     const whatsappLink = ad.user_phone
