@@ -1,0 +1,72 @@
+{
+    "CallerReference": "gp-backend-cloudfront-2026-01-20",
+    "Comment": "CloudFront distribution for GP Backend API (HTTPS)",
+    "Enabled": true,
+    "Origins": {
+        "Quantity": 1,
+        "Items": [
+            {
+                "Id": "gp-backend-origin",
+                "DomainName": "gp-backend-env.eba-tyycdbie.us-east-1.elasticbeanstalk.com",
+                "CustomOriginConfig": {
+                    "HTTPPort": 80,
+                    "HTTPSPort": 443,
+                    "OriginProtocolPolicy": "http-only",
+                    "OriginSslProtocols": {
+                        "Quantity": 1,
+                        "Items": [
+                            "TLSv1.2"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "DefaultCacheBehavior": {
+        "TargetOriginId": "gp-backend-origin",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "AllowedMethods": {
+            "Quantity": 7,
+            "Items": [
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "PUT",
+                "POST",
+                "PATCH",
+                "DELETE"
+            ],
+            "CachedMethods": {
+                "Quantity": 2,
+                "Items": [
+                    "GET",
+                    "HEAD"
+                ]
+            }
+        },
+        "ForwardedValues": {
+            "QueryString": true,
+            "Cookies": {
+                "Forward": "all"
+            },
+            "Headers": {
+                "Quantity": 4,
+                "Items": [
+                    "Authorization",
+                    "Content-Type",
+                    "Accept",
+                    "Origin"
+                ]
+            }
+        },
+        "MinTTL": 0,
+        "DefaultTTL": 0,
+        "MaxTTL": 0,
+        "Compress": true,
+        "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+        }
+    },
+    "PriceClass": "PriceClass_100"
+}

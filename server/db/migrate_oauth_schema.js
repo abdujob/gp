@@ -36,7 +36,9 @@ async function migrateOAuthSchema() {
         console.log('📝 Adding is_email_verified column...');
         await client.query(`
             ALTER TABLE users 
-            ADD COLUMN IF NOT EXISTS is_email_verified BOOLEAN DEFAULT FALSE
+            ADD COLUMN IF NOT EXISTS is_email_verified BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS email_verification_token TEXT,
+            ADD COLUMN IF NOT EXISTS email_verification_expiry TIMESTAMP
         `);
 
         // 4. Add refresh_token column
