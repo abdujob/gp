@@ -78,7 +78,7 @@ const validateLogin = [
         .withMessage('L\'email est requis')
         .isEmail()
         .withMessage('Email invalide')
-        .normalizeEmail(),
+        .toLowerCase(),
 
     body('password')
         .notEmpty()
