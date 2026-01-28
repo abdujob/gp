@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import { useAuth } from '../../contexts/AuthContext';
 
 function PostAdPageContent() {
     const router = useRouter();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -14,14 +16,15 @@ function PostAdPageContent() {
     const [departureCity, setDepartureCity] = useState('');
     const [arrivalCity, setArrivalCity] = useState('');
     const [description, setDescription] = useState('');
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
     const [availableDate, setAvailableDate] = useState('');
     const [transportTypes, setTransportTypes] = useState<string[]>([]);
     const [price, setPrice] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [phone, setPhone] = useState('');
     const [advertiserName, setAdvertiserName] = useState('');
+
+    // Check if user is admin (LIVREUR_GP for now, will be ADMIN later)
+    const isAdmin = user?.role === 'LIVREUR_GP';
 
     // Mock Coords (Real app would geocode address)
     const latitude = 48.8566;
@@ -38,8 +41,9 @@ function PostAdPageContent() {
         if (description) {
             formData.append('description', description);
         }
-        formData.append('address', address);
-        formData.append('city', city);
+        // Use departure city as both address and city for now
+        formData.append('address', departureCity);
+        formData.append('city', departureCity);
         formData.append('latitude', latitude.toString());
         formData.append('longitude', longitude.toString());
         formData.append('available_date', availableDate);
@@ -100,31 +104,6 @@ function PostAdPageContent() {
                             placeholder="Ex: Paris"
                             value={arrivalCity}
                             onChange={e => setArrivalCity(e.target.value)}
-                            disabled={loading}
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Ville de départ</label>
-                        <input
-                            type="text"
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            value={city}
-                            onChange={e => setCity(e.target.value)}
-                            disabled={loading}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Adresse précise (Gare, Aéroport...)</label>
-                        <input
-                            type="text"
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            value={address}
-                            onChange={e => setAddress(e.target.value)}
                             disabled={loading}
                         />
                     </div>
@@ -209,19 +188,20 @@ function PostAdPageContent() {
                 </div>
 
                 {/* Nom de l'annonceur (admin uniquement) */}
-                {/* Note: Pour l'instant visible pour tous LIVREUR_GP, sera restreint aux ADMIN après redéploiement frontend */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Nom de l'annonceur (optionnel - admin uniquement)</label>
-                    <input
-                        type="text"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                        placeholder="Laissez vide pour utiliser votre nom"
-                        value={advertiserName}
-                        onChange={e => setAdvertiserName(e.target.value)}
-                        disabled={loading}
-                    />
-                    <p className="mt-1 text-sm text-gray-500">Remplissez uniquement si vous créez une annonce pour quelqu'un d'autre</p>
-                </div>
+                {isAdmin && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Nom de l'annonceur (optionnel - admin uniquement)</label>
+                        <input
+                            type="text"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                            placeholder="Laissez vide pour utiliser votre nom"
+                            value={advertiserName}
+                            onChange={e => setAdvertiserName(e.target.value)}
+                            disabled={loading}
+                        />
+                        <p className="mt-1 text-sm text-gray-500">Remplissez uniquement si vous créez une annonce pour quelqu'un d'autre</p>
+                    </div>
+                )}
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Photo (optionnel)</label>
