@@ -65,20 +65,6 @@ const validateRegistration = [
         .isIn(['EXPEDITEUR', 'LIVREUR_GP'])
         .withMessage('Le rôle doit être EXPEDITEUR ou LIVREUR_GP'),
 
-    body('phone')
-        .optional()
-        .trim()
-        .matches(/^[\d\s\-\+\(\)]+$/)
-        .withMessage('Numéro de téléphone invalide')
-        .isLength({ min: 8, max: 20 })
-        .withMessage('Le numéro de téléphone doit contenir entre 8 et 20 caractères'),
-
-    body('address')
-        .optional()
-        .trim()
-        .isLength({ max: 500 })
-        .withMessage('L\'adresse ne peut pas dépasser 500 caractères'),
-
     handleValidationErrors
 ];
 
@@ -178,20 +164,6 @@ const validateProfileUpdate = [
         .withMessage('Le nom doit contenir entre 2 et 100 caractères')
         .matches(/^[a-zA-ZÀ-ÿ\s'-]+$/)
         .withMessage('Le nom ne peut contenir que des lettres, espaces, apostrophes et tirets'),
-
-    body('phone')
-        .optional()
-        .trim()
-        .matches(/^[\d\s\-\+\(\)]+$/)
-        .withMessage('Numéro de téléphone invalide')
-        .isLength({ min: 8, max: 20 })
-        .withMessage('Le numéro de téléphone doit contenir entre 8 et 20 caractères'),
-
-    body('address')
-        .optional()
-        .trim()
-        .isLength({ max: 500 })
-        .withMessage('L\'adresse ne peut pas dépasser 500 caractères'),
 
     handleValidationErrors
 ];

@@ -48,7 +48,12 @@ router.post('/', [
     body('available_date').isISO8601().withMessage('Date invalide'),
     body('transport_type').trim().notEmpty().withMessage('Le type de transport est requis'),
     body('weight_capacity').trim().notEmpty().withMessage('La capacitÃ© est requise'),
-    body('price').isFloat({ min: 0 }).withMessage('Le prix doit Ãªtre positif')
+    body('price').isFloat({ min: 0 }).withMessage('Le prix doit être positif'),
+    body('phone').trim().notEmpty().withMessage('Le numéro de téléphone est requis')
+        .matches(/^[\d\s\-\+\(\)]+$/)
+        .withMessage('Numéro de téléphone invalide')
+        .isLength({ min: 8, max: 20 })
+        .withMessage('Le numéro de téléphone doit contenir entre 8 et 20 caractères')
 ], async (req, res) => {
     // Check validation errors
     const errors = validationResult(req);
@@ -60,7 +65,7 @@ router.post('/', [
         const {
             title, description, address, city,
             latitude, longitude, available_date, transport_type,
-            weight_capacity, price
+            weight_capacity, price, phone
         } = req.body;
 
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
@@ -69,13 +74,13 @@ router.post('/', [
             `INSERT INTO ads (
                 user_id, title, description, address, city, 
                 latitude, longitude, available_date, transport_type, 
-                image_url, weight_capacity, price
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
+                image_url, weight_capacity, price, phone
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
             RETURNING *`,
             [
                 req.user.id, title, description, address, city,
                 latitude, longitude, available_date, transport_type,
-                image_url, weight_capacity, price
+                image_url, weight_capacity, price, phone
             ]
         );
 

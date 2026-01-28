@@ -37,7 +37,7 @@ const {
 // @desc    Register new user with email verification
 // @access  Public
 router.post('/register', registerLimiter, validateRegistration, async (req, res) => {
-    const { full_name, email, password, role, phone, address } = req.body;
+    const { full_name, email, password, role } = req.body;
 
     try {
         // Check if user already exists
@@ -69,13 +69,13 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         // Insert new user with verification token
         const newUser = await pool.query(
             `INSERT INTO users (
-                full_name, email, password_hash, role, phone, address,
+                full_name, email, password_hash, role,
                 provider, is_email_verified, email_verification_token, 
                 email_verification_expiry
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            RETURNING id, full_name, email, role, phone, address, avatar_url, 
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING id, full_name, email, role, avatar_url, 
                       provider, is_email_verified, created_at`,
-            [full_name, email, password_hash, userRole, phone, address,
+            [full_name, email, password_hash, userRole,
                 'LOCAL', false, verificationTokenHash, verificationTokenExpiry]
         );
 
@@ -543,7 +543,7 @@ router.post('/logout', auth, async (req, res) => {
 router.get('/me', auth, async (req, res) => {
     try {
         const userResult = await pool.query(
-            `SELECT id, full_name, email, role, phone, address, avatar_url, 
+            `SELECT id, full_name, email, role, avatar_url, 
                     provider, is_email_verified, created_at, updated_at
              FROM users WHERE id = $1`,
             [req.user.id]

@@ -20,6 +20,7 @@ function PostAdPageContent() {
     const [weightCapacity, setWeightCapacity] = useState('');
     const [price, setPrice] = useState('');
     const [image, setImage] = useState<File | null>(null);
+    const [phone, setPhone] = useState('');
 
     // Mock Coords (Real app would geocode address)
     const latitude = 48.8566;
@@ -44,6 +45,7 @@ function PostAdPageContent() {
         if (image) {
             formData.append('image', image);
         }
+        formData.append('phone', phone);
 
         try {
             await api.post('/ads', formData, {
@@ -170,6 +172,20 @@ function PostAdPageContent() {
                         onChange={e => setDescription(e.target.value)}
                         disabled={loading}
                     />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Numéro de téléphone (WhatsApp)</label>
+                    <input
+                        type="tel"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                        placeholder="+221 77 123 45 67"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        disabled={loading}
+                    />
+                    <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
                 </div>
 
                 <div>

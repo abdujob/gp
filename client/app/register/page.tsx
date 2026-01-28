@@ -45,9 +45,7 @@ export default function RegisterPage() {
         full_name: '',
         email: '',
         password: '',
-        role: 'LIVREUR_GP' as 'EXPEDITEUR' | 'LIVREUR_GP',
-        phone: '',
-        address: ''
+        role: 'LIVREUR_GP' as 'EXPEDITEUR' | 'LIVREUR_GP'
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -98,19 +96,7 @@ export default function RegisterPage() {
             return false;
         }
 
-        // Validation spécifique pour LIVREUR_GP
-        if (formData.role === 'LIVREUR_GP') {
-            if (!formData.phone || !formData.address) {
-                setError('Le téléphone et l\'adresse sont requis pour les livreurs GP');
-                return false;
-            }
 
-            // Validation téléphone
-            if (formData.phone.length < 8) {
-                setError('Numéro de téléphone invalide');
-                return false;
-            }
-        }
 
         return true;
     };
@@ -130,16 +116,12 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            // Préparer les données - ne pas envoyer phone/address vides pour EXPEDITEUR
+            // Préparer les données
             const dataToSend = {
                 full_name: formData.full_name,
                 email: formData.email,
                 password: formData.password,
-                role: formData.role,
-                ...(formData.role === 'LIVREUR_GP' && {
-                    phone: formData.phone,
-                    address: formData.address
-                })
+                role: formData.role
             };
 
             await register(dataToSend);
@@ -227,41 +209,7 @@ export default function RegisterPage() {
                             />
                         </div>
 
-                        {/* Champs spécifiques pour LIVREUR_GP */}
-                        {formData.role === 'LIVREUR_GP' && (
-                            <>
-                                <div>
-                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Téléphone <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        id="phone"
-                                        type="tel"
-                                        required
-                                        className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition"
-                                        placeholder="+221 77 123 45 67"
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        disabled={loading}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Adresse complète <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        id="address"
-                                        type="text"
-                                        required
-                                        className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition"
-                                        placeholder="Dakar, Sénégal"
-                                        value={formData.address}
-                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                        disabled={loading}
-                                    />
-                                </div>
-                            </>
-                        )}
+
 
                         {/* Mot de passe avec indicateur de force */}
                         <div>

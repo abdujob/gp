@@ -12,8 +12,6 @@ interface User {
     full_name: string;
     email: string;
     role: 'EXPEDITEUR' | 'LIVREUR_GP';
-    phone?: string;
-    address?: string;
     avatar_url?: string;
     is_email_verified?: boolean;
     provider?: string;
@@ -27,8 +25,6 @@ interface RegisterData {
     email: string;
     password: string;
     role: 'EXPEDITEUR' | 'LIVREUR_GP';
-    phone?: string;
-    address?: string;
 }
 
 /**
