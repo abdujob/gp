@@ -46,9 +46,11 @@ app.get('/', (req, res) => {
 // API Routes
 const authRoutes = require('./routes/auth');
 const adRoutes = require('./routes/ads');
+const adminRoutes = require('./routes/admin');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/ads', adRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Static Files for Uploads
 app.use('/uploads', express.static('uploads'));

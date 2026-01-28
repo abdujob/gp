@@ -11,7 +11,7 @@ interface User {
     id: string;
     full_name: string;
     email: string;
-    role: 'EXPEDITEUR' | 'LIVREUR_GP';
+    role: 'EXPEDITEUR' | 'LIVREUR_GP' | 'ADMIN';
     avatar_url?: string;
     is_email_verified?: boolean;
     provider?: string;
@@ -24,7 +24,7 @@ interface RegisterData {
     full_name: string;
     email: string;
     password: string;
-    role: 'EXPEDITEUR' | 'LIVREUR_GP';
+    role: 'EXPEDITEUR' | 'LIVREUR_GP' | 'ADMIN';
 }
 
 /**
@@ -48,6 +48,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLivreurGP: boolean;
     isExpediteur: boolean;
+    isAdmin: boolean;
     isEmailVerified: boolean;
     requestPasswordReset: (email: string) => Promise<any>;
     resetPassword: (token: string, password: string) => Promise<any>;
@@ -341,6 +342,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         isLivreurGP: user?.role === 'LIVREUR_GP',
         isExpediteur: user?.role === 'EXPEDITEUR',
+        isAdmin: user?.role === 'ADMIN',
         isEmailVerified: user?.is_email_verified ?? false,
     };
 
