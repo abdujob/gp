@@ -39,21 +39,22 @@ router.post('/', [
     requireLivreurGP,
     upload.single('image'),
     // Validation rules
-    body('title').trim().isLength({ min: 5, max: 150 }).withMessage('Le titre doit contenir entre 5 et 150 caractÃ¨res'),
-    body('description').trim().isLength({ min: 10, max: 1000 }).withMessage('La description doit contenir entre 10 et 1000 caractÃ¨res'),
+    body('departure_city').trim().notEmpty().withMessage('La ville de départ est requise'),
+    body('arrival_city').trim().notEmpty().withMessage('La ville d\'arrivée est requise'),
+    body('description').optional().trim().isLength({ min: 10, max: 1000 }).withMessage('La description doit contenir entre 10 et 1000 caractères'),
     body('address').trim().notEmpty().withMessage('L\'adresse est requise'),
     body('city').trim().notEmpty().withMessage('La ville est requise'),
     body('latitude').isFloat({ min: -90, max: 90 }).withMessage('Latitude invalide'),
     body('longitude').isFloat({ min: -180, max: 180 }).withMessage('Longitude invalide'),
     body('available_date').isISO8601().withMessage('Date invalide'),
-    body('transport_type').trim().notEmpty().withMessage('Le type de transport est requis'),
-    body('weight_capacity').trim().notEmpty().withMessage('La capacitÃ© est requise'),
+    body('transport_types').isArray({ min: 1 }).withMessage('Sélectionnez au moins un type de colis'),
     body('price').isFloat({ min: 0 }).withMessage('Le prix doit être positif'),
     body('phone').trim().notEmpty().withMessage('Le numéro de téléphone est requis')
         .matches(/^[\d\s\-\+\(\)]+$/)
         .withMessage('Numéro de téléphone invalide')
         .isLength({ min: 8, max: 20 })
-        .withMessage('Le numéro de téléphone doit contenir entre 8 et 20 caractères')
+        .withMessage('Le numéro de téléphone doit contenir entre 8 et 20 caractères'),
+    body('advertiser_name').optional().trim().isLength({ min: 2, max: 255 }).withMessage('Le nom doit contenir entre 2 et 255 caractères')
 ], async (req, res) => {
     // Check validation errors
     const errors = validationResult(req);
@@ -63,10 +64,21 @@ router.post('/', [
 
     try {
         const {
-            title, description, address, city,
-            latitude, longitude, available_date, transport_type,
-            weight_capacity, price, phone
+            departure_city, arrival_city, description, address, city,
+            latitude, longitude, available_date, transport_types,
+            price, phone, advertiser_name
         } = req.body;
+
+        // Générer le titre automatiquement
+        const title = `${departure_city} → ${arrival_city}`;
+
+        // Convertir transport_types en JSON
+        const transport_type_json = JSON.stringify(transport_types);
+
+        // Vérifier si l'utilisateur est admin pour advertiser_name
+        // Note: Pour l'instant, LIVREUR_GP est utilisé comme rôle admin temporaire
+        // Quand le frontend sera redéployé avec le rôle ADMIN, on changera cette vérification
+        const finalAdvertiserName = advertiser_name || null;
 
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -74,13 +86,15 @@ router.post('/', [
             `INSERT INTO ads (
                 user_id, title, description, address, city, 
                 latitude, longitude, available_date, transport_type, 
-                image_url, weight_capacity, price, phone
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
+                image_url, price, phone, advertiser_name,
+                departure_city, arrival_city
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) 
             RETURNING *`,
             [
-                req.user.id, title, description, address, city,
-                latitude, longitude, available_date, transport_type,
-                image_url, weight_capacity, price, phone
+                req.user.id, title, description || null, address, city,
+                latitude, longitude, available_date, transport_type_json,
+                image_url, price, phone, finalAdvertiserName,
+                departure_city, arrival_city
             ]
         );
 
@@ -88,7 +102,7 @@ router.post('/', [
 
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Erreur serveur lors de la crÃ©ation de l\'annonce' });
+        res.status(500).json({ msg: 'Erreur serveur lors de la création de l\'annonce' });
     }
 });
 

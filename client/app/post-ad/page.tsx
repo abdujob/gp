@@ -11,16 +11,17 @@ function PostAdPageContent() {
     const [error, setError] = useState('');
 
     // Form fields
-    const [title, setTitle] = useState('');
+    const [departureCity, setDepartureCity] = useState('');
+    const [arrivalCity, setArrivalCity] = useState('');
     const [description, setDescription] = useState('');
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [availableDate, setAvailableDate] = useState('');
-    const [transportType, setTransportType] = useState('colis');
-    const [weightCapacity, setWeightCapacity] = useState('');
+    const [transportTypes, setTransportTypes] = useState<string[]>([]);
     const [price, setPrice] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [phone, setPhone] = useState('');
+    const [advertiserName, setAdvertiserName] = useState('');
 
     // Mock Coords (Real app would geocode address)
     const latitude = 48.8566;
@@ -32,20 +33,25 @@ function PostAdPageContent() {
         setError('');
 
         const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
+        formData.append('departure_city', departureCity);
+        formData.append('arrival_city', arrivalCity);
+        if (description) {
+            formData.append('description', description);
+        }
         formData.append('address', address);
         formData.append('city', city);
         formData.append('latitude', latitude.toString());
         formData.append('longitude', longitude.toString());
         formData.append('available_date', availableDate);
-        formData.append('transport_type', transportType);
-        formData.append('weight_capacity', weightCapacity);
+        formData.append('transport_types', JSON.stringify(transportTypes));
         formData.append('price', price);
         if (image) {
             formData.append('image', image);
         }
         formData.append('phone', phone);
+        if (advertiserName) {
+            formData.append('advertiser_name', advertiserName);
+        }
 
         try {
             await api.post('/ads', formData, {
@@ -71,17 +77,32 @@ function PostAdPageContent() {
                     </div>
                 )}
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Titre de l'annonce</label>
-                    <input
-                        type="text"
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                        placeholder="Ex: Paris -> New York, 3kg dispo"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        disabled={loading}
-                    />
+                {/* Villes de départ et d'arrivée */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Ville de départ *</label>
+                        <input
+                            type="text"
+                            required
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                            placeholder="Ex: Dakar"
+                            value={departureCity}
+                            onChange={e => setDepartureCity(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Ville d'arrivée *</label>
+                        <input
+                            type="text"
+                            required
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                            placeholder="Ex: Paris"
+                            value={arrivalCity}
+                            onChange={e => setArrivalCity(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -122,7 +143,7 @@ function PostAdPageContent() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Prix (€)</label>
+                        <label className="block text-sm font-medium text-gray-700">Prix (FCFA)</label>
                         <input
                             type="number"
                             required
@@ -134,37 +155,35 @@ function PostAdPageContent() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Type de transport</label>
-                        <select
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            value={transportType}
-                            onChange={e => setTransportType(e.target.value)}
-                            disabled={loading}
-                        >
-                            <option value="colis">Petit Colis</option>
-                            <option value="document">Documents</option>
-                            <option value="autre">Autre / Gros Volume</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Capacité (ex: 5kg)</label>
-                        <input
-                            type="text"
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            value={weightCapacity}
-                            onChange={e => setWeightCapacity(e.target.value)}
-                            disabled={loading}
-                        />
+                {/* Types de colis (sélection multiple) */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Type de colis * (sélection multiple)</label>
+                    <div className="space-y-2">
+                        {['Petit Colis', 'Documents', 'Gros Volume'].map(type => (
+                            <label key={type} className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                                    checked={transportTypes.includes(type)}
+                                    onChange={e => {
+                                        if (e.target.checked) {
+                                            setTransportTypes([...transportTypes, type]);
+                                        } else {
+                                            setTransportTypes(transportTypes.filter(t => t !== type));
+                                        }
+                                    }}
+                                    disabled={loading}
+                                />
+                                <span className="ml-2 text-sm text-gray-700">{type}</span>
+                            </label>
+                        ))}
                     </div>
                 </div>
 
+                {/* Description optionnelle */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <label className="block text-sm font-medium text-gray-700">Description (optionnel)</label>
                     <textarea
-                        required
                         rows={4}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary border p-3"
                         placeholder="Détails du voyage, restrictions..."
@@ -172,6 +191,7 @@ function PostAdPageContent() {
                         onChange={e => setDescription(e.target.value)}
                         disabled={loading}
                     />
+                    <p className="mt-1 text-sm text-gray-500">Minimum 10 caractères si rempli</p>
                 </div>
 
                 <div>
@@ -188,6 +208,21 @@ function PostAdPageContent() {
                     <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
                 </div>
 
+                {/* Nom de l'annonceur (admin uniquement) */}
+                {/* Note: Pour l'instant visible pour tous LIVREUR_GP, sera restreint aux ADMIN après redéploiement frontend */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Nom de l'annonceur (optionnel - admin uniquement)</label>
+                    <input
+                        type="text"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                        placeholder="Laissez vide pour utiliser votre nom"
+                        value={advertiserName}
+                        onChange={e => setAdvertiserName(e.target.value)}
+                        disabled={loading}
+                    />
+                    <p className="mt-1 text-sm text-gray-500">Remplissez uniquement si vous créez une annonce pour quelqu'un d'autre</p>
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Photo (optionnel)</label>
                     <input
@@ -201,7 +236,7 @@ function PostAdPageContent() {
 
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || transportTypes.length === 0}
                     className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {loading ? 'Publication...' : 'Publier l\'annonce'}
