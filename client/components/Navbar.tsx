@@ -5,7 +5,7 @@ import { Package, User, PlusCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-    const { user, logout, isLivreurGP } = useAuth();
+    const { user, logout, isLivreurGP, isAdmin } = useAuth();
 
     return (
         <nav className="border-b bg-white shadow-sm sticky top-0 z-50">
@@ -25,8 +25,8 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {/* Bouton "Poster une annonce" visible uniquement pour LIVREUR_GP */}
-                    {isLivreurGP && (
+                    {/* Bouton "Poster une annonce" visible pour LIVREUR_GP et ADMIN */}
+                    {(isLivreurGP || isAdmin) && (
                         <Link
                             href="/post-ad"
                             className="hidden md:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-all shadow-md"
