@@ -227,11 +227,11 @@ function PostAdPageContent() {
 }
 
 /**
- * Page protégée - Accessible uniquement aux LIVREUR_GP
+ * Page protégée - Accessible aux LIVREUR_GP et EXPEDITEUR
  */
 export default function PostAdPage() {
     return (
-        <ProtectedRoute requiredRole="LIVREUR_GP">
+        <ProtectedRoute allowedRoles={['LIVREUR_GP', 'EXPEDITEUR']}>
             <PostAdPageContent />
         </ProtectedRoute>
     );

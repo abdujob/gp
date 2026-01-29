@@ -9,7 +9,8 @@ import { useAuth } from '../contexts/AuthContext';
  */
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    requiredRole?: 'EXPEDITEUR' | 'LIVREUR_GP';
+    requiredRole?: 'EXPEDITEUR' | 'LIVREUR_GP' | 'ADMIN';
+    allowedRoles?: Array<'EXPEDITEUR' | 'LIVREUR_GP' | 'ADMIN'>;
     redirectTo?: string;
 }
 
@@ -20,6 +21,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({
     children,
     requiredRole,
+    allowedRoles,
     redirectTo = '/login'
 }: ProtectedRouteProps) {
     const { user, loading } = useAuth();
@@ -35,16 +37,19 @@ export default function ProtectedRoute({
             return;
         }
 
+        // Vérifier les rôles autorisés
+        const roles = allowedRoles || (requiredRole ? [requiredRole] : []);
+
         // Rediriger si le rôle ne correspond pas
-        if (requiredRole && user.role !== requiredRole) {
+        if (roles.length > 0 && !roles.includes(user.role)) {
             // Si un EXPEDITEUR tente d'accéder à une page LIVREUR_GP
-            if (requiredRole === 'LIVREUR_GP') {
+            if (roles.includes('LIVREUR_GP') && !roles.includes('EXPEDITEUR')) {
                 router.push('/');
             } else {
                 router.push('/dashboard');
             }
         }
-    }, [user, loading, requiredRole, router, redirectTo]);
+    }, [user, loading, requiredRole, allowedRoles, router, redirectTo]);
 
     // Afficher un loader pendant le chargement
     if (loading) {
@@ -58,8 +63,11 @@ export default function ProtectedRoute({
         );
     }
 
+    // Vérifier les rôles autorisés
+    const roles = allowedRoles || (requiredRole ? [requiredRole] : []);
+
     // Ne rien afficher si non autorisé (la redirection est en cours)
-    if (!user || (requiredRole && user.role !== requiredRole)) {
+    if (!user || (roles.length > 0 && !roles.includes(user.role))) {
         return null;
     }
 
