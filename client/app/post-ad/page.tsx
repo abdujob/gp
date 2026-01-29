@@ -23,8 +23,8 @@ function PostAdPageContent() {
     const [phone, setPhone] = useState('');
     const [advertiserName, setAdvertiserName] = useState('');
 
-    // Check if user is admin (LIVREUR_GP for now, will be ADMIN later)
-    const isAdmin = user?.role === 'LIVREUR_GP';
+    // Check if user is admin - ADMIN users must specify advertiser name
+    const isAdmin = user?.role === 'ADMIN';
 
     // Mock Coords (Real app would geocode address)
     const latitude = 48.8566;
@@ -53,7 +53,8 @@ function PostAdPageContent() {
             formData.append('image', image);
         }
         formData.append('phone', phone);
-        if (advertiserName) {
+        // Admin must specify advertiser name, LIVREUR_GP uses their own name
+        if (isAdmin) {
             formData.append('advertiser_name', advertiserName);
         }
 
@@ -187,19 +188,20 @@ function PostAdPageContent() {
                     <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
                 </div>
 
-                {/* Nom de l'annonceur (admin uniquement) */}
+                {/* Nom du livreur (obligatoire pour admin uniquement) */}
                 {isAdmin && (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Nom de l'annonceur (optionnel - admin uniquement)</label>
+                        <label className="block text-sm font-medium text-gray-700">Nom du livreur *</label>
                         <input
                             type="text"
+                            required
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            placeholder="Laissez vide pour utiliser votre nom"
+                            placeholder="Nom du livreur pour cette annonce"
                             value={advertiserName}
                             onChange={e => setAdvertiserName(e.target.value)}
                             disabled={loading}
                         />
-                        <p className="mt-1 text-sm text-gray-500">Remplissez uniquement si vous créez une annonce pour quelqu'un d'autre</p>
+                        <p className="mt-1 text-sm text-gray-500">Spécifiez le nom du livreur pour cette annonce</p>
                     </div>
                 )}
 
@@ -227,11 +229,11 @@ function PostAdPageContent() {
 }
 
 /**
- * Page protégée - Accessible aux LIVREUR_GP et EXPEDITEUR
+ * Page protégée - Accessible aux LIVREUR_GP et ADMIN
  */
 export default function PostAdPage() {
     return (
-        <ProtectedRoute allowedRoles={['LIVREUR_GP', 'EXPEDITEUR']}>
+        <ProtectedRoute allowedRoles={['LIVREUR_GP', 'ADMIN']}>
             <PostAdPageContent />
         </ProtectedRoute>
     );

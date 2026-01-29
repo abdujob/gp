@@ -7,37 +7,32 @@ const pool = require('../db');
  */
 module.exports = async function (req, res, next) {
     try {
-        // Vérifier d'abord le rôle depuis le JWT (performance)
-        if (req.user.role && req.user.role === 'LIVREUR_GP') {
-            return next();
-        }
-
-        // Double vérification depuis la DB (sécurité)
-        const userResult = await pool.query(
-            'SELECT role FROM users WHERE id = $1',
-            [req.user.id]
-        );
-
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
-
-        const dbRole = userResult.rows[0].role;
-
-        if (dbRole !== 'LIVREUR_GP') {
-            return res.status(403).json({
-                msg: 'Access denied: LIVREUR_GP role required',
-                required_role: 'LIVREUR_GP',
-                user_role: dbRole
+        // Check if user is authenticated (should be set by auth middleware)
+        if (!req.user) {
+            return res.status(401).json({
+                msg: 'Accès refusé. Authentification requise.',
+                code: 'AUTH_REQUIRED'
             });
         }
 
-        // Synchroniser le rôle dans req.user si différent
-        req.user.role = dbRole;
+        // Check if user has LIVREUR_GP or ADMIN role
+        if (req.user.role !== 'LIVREUR_GP' && req.user.role !== 'ADMIN') {
+            return res.status(403).json({
+                msg: 'Accès refusé. Seuls les livreurs GP et administrateurs peuvent effectuer cette action.',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                requiredRoles: ['LIVREUR_GP', 'ADMIN'],
+                userRole: req.user.role
+            });
+        }
+
+        // User has required role, proceed
         next();
 
     } catch (err) {
         console.error('Error in requireLivreurGP middleware:', err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({
+            msg: 'Erreur serveur lors de la vérification des permissions.',
+            code: 'SERVER_ERROR'
+        });
     }
 };

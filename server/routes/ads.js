@@ -75,10 +75,21 @@ router.post('/', [
         // Convertir transport_types en JSON
         const transport_type_json = JSON.stringify(transport_types);
 
-        // Vérifier si l'utilisateur est admin pour advertiser_name
-        // Note: Pour l'instant, LIVREUR_GP est utilisé comme rôle admin temporaire
-        // Quand le frontend sera redéployé avec le rôle ADMIN, on changera cette vérification
-        const finalAdvertiserName = advertiser_name || null;
+        // Gérer le nom de l'annonceur selon le rôle
+        let finalAdvertiserName;
+        if (req.user.role === 'ADMIN') {
+            // Admin DOIT spécifier le nom du livreur
+            if (!advertiser_name || advertiser_name.trim() === '') {
+                return res.status(400).json({
+                    msg: 'En tant qu\'administrateur, vous devez spécifier le nom du livreur',
+                    code: 'ADVERTISER_NAME_REQUIRED'
+                });
+            }
+            finalAdvertiserName = advertiser_name;
+        } else {
+            // LIVREUR_GP utilise son propre nom (ignoré si fourni)
+            finalAdvertiserName = null;
+        }
 
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
