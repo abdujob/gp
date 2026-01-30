@@ -100,7 +100,7 @@ const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
                     <div className="flex items-center gap-2">
                         <Package className="w-4 h-4 text-orange-500" />
                         <span className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs px-2 py-1">
-                            {ad.transport_type}
+                            {formatTransportTypes(ad.transport_type)}
                         </span>
                     </div>
                 </div>

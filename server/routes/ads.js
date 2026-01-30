@@ -252,7 +252,11 @@ router.get('/', async (req, res) => {
         values.push(offset); // Offset
 
         const text = `
-            SELECT ads.*, users.full_name as user_name, users.avatar_url, users.phone as user_phone ${selectDistance}
+            SELECT ads.*, 
+                   COALESCE(ads.advertiser_name, users.full_name) as user_name, 
+                   users.avatar_url, 
+                   COALESCE(ads.phone, users.phone) as user_phone 
+                   ${selectDistance}
             FROM ads 
             JOIN users ON ads.user_id = users.id 
             ${whereClause}
