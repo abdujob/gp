@@ -42,6 +42,19 @@ const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
 
     const currencySymbol = currency === 'EUR' ? '€' : 'FCFA';
 
+    // Parser et formater les types de transport
+    const formatTransportTypes = (transportType: string) => {
+        try {
+            const types = JSON.parse(transportType);
+            if (Array.isArray(types)) {
+                return types.join(', ');
+            }
+            return transportType;
+        } catch (e) {
+            return transportType;
+        }
+    };
+
     // Fonction pour mettre la première lettre en majuscule
     const capitalize = (str: string) => {
         if (!str) return str;
