@@ -47,7 +47,23 @@ router.post('/', [
     body('latitude').isFloat({ min: -90, max: 90 }).withMessage('Latitude invalide'),
     body('longitude').isFloat({ min: -180, max: 180 }).withMessage('Longitude invalide'),
     body('available_date').isISO8601().withMessage('Date invalide'),
-    body('transport_types').isArray({ min: 1 }).withMessage('Sélectionnez au moins un type de colis'),
+    body('transport_types').custom((value) => {
+        // Accept either array or JSON string
+        if (Array.isArray(value) && value.length > 0) {
+            return true;
+        }
+        if (typeof value === 'string') {
+            try {
+                const parsed = JSON.parse(value);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return true;
+                }
+            } catch (e) {
+                throw new Error('Format de types de colis invalide');
+            }
+        }
+        throw new Error('Sélectionnez au moins un type de colis');
+    }),
     body('price').isFloat({ min: 0 }).withMessage('Le prix doit être positif'),
     body('phone').trim().notEmpty().withMessage('Le numéro de téléphone est requis')
         .matches(/^[\d\s\-\+\(\)]+$/)
@@ -72,8 +88,14 @@ router.post('/', [
         // Générer le titre automatiquement
         const title = `${departure_city} → ${arrival_city}`;
 
+        // Parse transport_types if it's a JSON string
+        let parsedTransportTypes = transport_types;
+        if (typeof transport_types === 'string') {
+            parsedTransportTypes = JSON.parse(transport_types);
+        }
+
         // Convertir transport_types en JSON
-        const transport_type_json = JSON.stringify(transport_types);
+        const transport_type_json = JSON.stringify(parsedTransportTypes);
 
         // Gérer le nom de l'annonceur selon le rôle
         let finalAdvertiserName;
