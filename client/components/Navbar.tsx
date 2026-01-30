@@ -29,7 +29,7 @@ const Navbar = () => {
                     {(isLivreurGP || isAdmin) && (
                         <Link
                             href="/post-ad"
-                            className="hidden md:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-all shadow-md"
+                            className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-full font-medium hover:bg-green-600 transition-all shadow-md"
                         >
                             <PlusCircle className="w-5 h-5" />
                             <span>Poster une annonce</span>
