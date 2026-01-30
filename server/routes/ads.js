@@ -135,7 +135,49 @@ router.post('/', [
 
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Erreur serveur lors de la création de l\'annonce' });
+        res.status(500).json({ msg: 'Erreur serveur' });
+    }
+});
+
+// @route   GET api/ads/my
+// @desc    Get user's own ads (LIVREUR_GP) or all ads (ADMIN)
+// @access  Private (LIVREUR_GP or ADMIN)
+router.get('/my', [auth, requireLivreurGP], async (req, res) => {
+    try {
+        let query;
+        let values = [];
+
+        if (req.user.role === 'ADMIN') {
+            // Admin voit TOUTES les annonces
+            query = `
+                SELECT ads.*, 
+                       COALESCE(ads.advertiser_name, users.full_name) as user_name, 
+                       users.avatar_url, 
+                       COALESCE(ads.phone, users.phone) as user_phone
+                FROM ads 
+                JOIN users ON ads.user_id = users.id 
+                ORDER BY ads.created_at DESC
+            `;
+        } else {
+            // Livreur voit uniquement SES annonces
+            query = `
+                SELECT ads.*, 
+                       COALESCE(ads.advertiser_name, users.full_name) as user_name, 
+                       users.avatar_url, 
+                       COALESCE(ads.phone, users.phone) as user_phone
+                FROM ads 
+                JOIN users ON ads.user_id = users.id 
+                WHERE ads.user_id = $1
+                ORDER BY ads.created_at DESC
+            `;
+            values = [req.user.id];
+        }
+
+        const result = await pool.query(query, values);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Erreur serveur' });
     }
 });
 
