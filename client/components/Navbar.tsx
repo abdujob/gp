@@ -16,10 +16,10 @@ const Navbar = () => {
                 </Link>
 
                 <div className="hidden md:flex items-center gap-6">
-                    {/* Liens visibles uniquement pour LIVREUR_GP */}
-                    {isLivreurGP && (
+                    {/* Liens visibles uniquement pour LIVREUR_GP et ADMIN */}
+                    {(isLivreurGP || isAdmin) && (
                         <Link href="/dashboard/my-ads" className="text-gray-600 hover:text-primary transition-colors">
-                            Mes annonces
+                            Mes Annonces
                         </Link>
                     )}
                 </div>
