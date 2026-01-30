@@ -28,6 +28,22 @@ interface AdCardProps {
 }
 
 const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
+    // Fonction pour mettre la première lettre en majuscule
+    const capitalize = (str: string) => {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+
+    // Formater le titre avec les villes capitalisées
+    const formatTitle = (title: string) => {
+        // Format attendu: "ville1 → ville2"
+        const parts = title.split('→').map(part => part.trim());
+        if (parts.length === 2) {
+            return `${capitalize(parts[0])} → ${capitalize(parts[1])}`;
+        }
+        return title;
+    };
+
     // Formater le message WhatsApp
     const whatsappMessage = encodeURIComponent(
         `Bonjour, j'ai vu votre annonce sur gp.senecoins.com et je souhaite expédier un colis. Est-ce toujours d'actualité ?`
@@ -42,7 +58,7 @@ const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                        {ad.title}
+                        {formatTitle(ad.title)}
                     </h3>
                     <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
                         {ad.avatar_url ? (

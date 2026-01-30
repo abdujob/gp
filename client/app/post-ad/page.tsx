@@ -19,7 +19,6 @@ function PostAdPageContent() {
     const [availableDate, setAvailableDate] = useState('');
     const [transportTypes, setTransportTypes] = useState<string[]>([]);
     const [price, setPrice] = useState('');
-    const [image, setImage] = useState<File | null>(null);
     const [phone, setPhone] = useState('');
     const [advertiserName, setAdvertiserName] = useState('');
 
@@ -49,9 +48,6 @@ function PostAdPageContent() {
         formData.append('available_date', availableDate);
         formData.append('transport_types', JSON.stringify(transportTypes));
         formData.append('price', price);
-        if (image) {
-            formData.append('image', image);
-        }
         formData.append('phone', phone);
         // Admin must specify advertiser name, LIVREUR_GP uses their own name
         if (isAdmin) {
@@ -205,16 +201,7 @@ function PostAdPageContent() {
                     </div>
                 )}
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Photo (optionnel)</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-primary hover:file:bg-blue-100"
-                        onChange={e => setImage(e.target.files ? e.target.files[0] : null)}
-                        disabled={loading}
-                    />
-                </div>
+
 
                 <button
                     type="submit"
