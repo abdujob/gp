@@ -1,6 +1,7 @@
 import { Calendar, MapPin, Package, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useState } from 'react';
 
 interface AdProps {
     id: string;
@@ -28,6 +29,19 @@ interface AdCardProps {
 }
 
 const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
+    // État pour la devise (EUR par défaut)
+    const [currency, setCurrency] = useState<'EUR' | 'FCFA'>('EUR');
+
+    // Taux de conversion : 1€ = 656 FCFA
+    const CONVERSION_RATE = 656;
+
+    // Calculer le prix selon la devise
+    const displayPrice = currency === 'EUR'
+        ? ad.price
+        : Math.round(ad.price * CONVERSION_RATE);
+
+    const currencySymbol = currency === 'EUR' ? '€' : 'FCFA';
+
     // Fonction pour mettre la première lettre en majuscule
     const capitalize = (str: string) => {
         if (!str) return str;
@@ -114,9 +128,17 @@ const AdCard = ({ ad, showRelevance = false }: AdCardProps) => {
             )}
 
             <div className="mt-auto pt-4 border-t flex justify-between items-center">
-                <div className="flex items-baseline gap-1">
-                    <span className="text-xs text-gray-500">À partir de</span>
-                    <span className="text-xl font-bold text-gray-900">{ad.price}€</span>
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-xs text-gray-500">À partir de</span>
+                        <span className="text-xl font-bold text-gray-900">{displayPrice}{currencySymbol}</span>
+                    </div>
+                    <button
+                        onClick={() => setCurrency(currency === 'EUR' ? 'FCFA' : 'EUR')}
+                        className="text-xs text-blue-600 hover:text-blue-800 underline text-left"
+                    >
+                        {currency === 'EUR' ? '→ Voir en FCFA' : '→ Voir en €'}
+                    </button>
                 </div>
                 {whatsappLink ? (
                     <a

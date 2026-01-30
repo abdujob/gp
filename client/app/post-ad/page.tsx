@@ -119,7 +119,7 @@ function PostAdPageContent() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Prix (FCFA)</label>
+                        <label className="block text-sm font-medium text-gray-700">Prix (€)</label>
                         <input
                             type="number"
                             required
