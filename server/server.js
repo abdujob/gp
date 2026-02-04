@@ -84,11 +84,6 @@ const path = require('path');
 async function initDB() {
     if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL) return;
 
-    // Diagnostic logging
-    console.log('🔍 DATABASE_URL exists:', !!process.env.DATABASE_URL);
-    console.log('🔍 DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 30) + '...');
-    console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
-
     // Only run if we are in production or explicitly asked to
     const client = new Client({
         connectionString: process.env.DATABASE_URL,
@@ -97,7 +92,6 @@ async function initDB() {
 
     try {
         await client.connect();
-        console.log('✅ Database connected successfully!');
         console.log('🔄 Checking database schema...');
 
         const schemaPath = path.join(__dirname, 'db', 'schema.sql');
