@@ -615,7 +615,10 @@ async function searchExact(depart, arrivee, date, type) {
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const query = `
-        SELECT ads.*, users.full_name as user_name, users.avatar_url, users.phone as user_phone
+        SELECT ads.*, 
+               COALESCE(ads.advertiser_name, users.full_name) as user_name, 
+               users.avatar_url, 
+               COALESCE(ads.phone, users.phone) as user_phone
         FROM ads
         JOIN users ON ads.user_id = users.id
         ${whereClause}
@@ -645,7 +648,10 @@ async function searchByProximity(departCoords, arriveeCoords, radius, date, type
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const query = `
-        SELECT ads.*, users.full_name as user_name, users.avatar_url, users.phone as user_phone
+        SELECT ads.*, 
+               COALESCE(ads.advertiser_name, users.full_name) as user_name, 
+               users.avatar_url, 
+               COALESCE(ads.phone, users.phone) as user_phone
         FROM ads
         JOIN users ON ads.user_id = users.id
         ${whereClause}
