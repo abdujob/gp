@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import api from '../lib/api';
 
 export interface DeliveryPerson {
+    id?: string;
     nom: string;
     telephone: string;
     ville_depart: string;
@@ -8,53 +10,41 @@ export interface DeliveryPerson {
     prix: number;
 }
 
-const STORAGE_KEY = 'admin_delivery_persons';
-
 export function useDeliveryPersons() {
     const [persons, setPersons] = useState<DeliveryPerson[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Load from localStorage on mount
+    // Load from API on mount
     useEffect(() => {
-        try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                setPersons(JSON.parse(stored));
-            }
-        } catch (error) {
-            console.error('Error loading delivery persons:', error);
-        }
+        fetchPersons();
     }, []);
 
-    // Save to localStorage whenever persons change
-    const saveToStorage = (updatedPersons: DeliveryPerson[]) => {
+    // Fetch all delivery persons from API
+    const fetchPersons = async () => {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPersons));
-            setPersons(updatedPersons);
+            const res = await api.get('/delivery-persons');
+            setPersons(res.data.data || []);
         } catch (error) {
-            console.error('Error saving delivery persons:', error);
+            console.error('Error loading delivery persons:', error);
+            setPersons([]);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Add or update a delivery person
-    const addPerson = (person: DeliveryPerson) => {
-        const existingIndex = persons.findIndex(
-            p => p.nom.toLowerCase() === person.nom.toLowerCase()
-        );
-
-        let updatedPersons: DeliveryPerson[];
-        if (existingIndex >= 0) {
-            // Update existing person
-            updatedPersons = [...persons];
-            updatedPersons[existingIndex] = person;
-        } else {
-            // Add new person
-            updatedPersons = [...persons, person];
+    // Add or update a delivery person via API
+    const addPerson = async (person: DeliveryPerson) => {
+        try {
+            await api.post('/delivery-persons', person);
+            // Refresh the list after adding
+            await fetchPersons();
+        } catch (error) {
+            console.error('Error saving delivery person:', error);
+            throw error;
         }
-
-        saveToStorage(updatedPersons);
     };
 
-    // Get suggestions based on input
+    // Get suggestions based on input (client-side filtering)
     const getSuggestions = (input: string): DeliveryPerson[] => {
         if (!input.trim()) return [];
 
@@ -64,18 +54,11 @@ export function useDeliveryPersons() {
         );
     };
 
-    // Remove a delivery person
-    const removePerson = (nom: string) => {
-        const updatedPersons = persons.filter(
-            p => p.nom.toLowerCase() !== nom.toLowerCase()
-        );
-        saveToStorage(updatedPersons);
-    };
-
     return {
         persons,
+        loading,
         addPerson,
         getSuggestions,
-        removePerson
+        refreshPersons: fetchPersons
     };
 }
