@@ -3,7 +3,7 @@
 import SearchForm from '../components/SearchForm';
 import AdCard from '../components/AdCard';
 import { ShieldCheck, Truck, PiggyBank, Package, Users, MapPin } from 'lucide-react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../lib/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -15,13 +15,10 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const observer = useRef<IntersectionObserver>();
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) setUser(JSON.parse(userStr));
-
-    // Charger les premières annonces
     fetchAds(1);
   }, []);
 
@@ -42,7 +39,6 @@ export default function Home() {
         setAds(prev => [...prev, ...newAds]);
       }
 
-      // Si on reçoit moins de 12 annonces, il n'y en a plus
       setHasMore(newAds.length === 12);
     } catch (err) {
       console.error('Erreur chargement annonces:', err);
@@ -52,29 +48,35 @@ export default function Home() {
     }
   };
 
-  // Référence pour le dernier élément (infinite scroll)
-  const lastAdRef = useCallback((node: HTMLDivElement) => {
-    if (loadingMore) return;
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => {
-          const nextPage = prevPage + 1;
+  // Infinite scroll avec Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          const nextPage = page + 1;
+          setPage(nextPage);
           fetchAds(nextPage);
-          return nextPage;
-        });
-      }
-    });
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-    if (node) observer.current.observe(node);
-  }, [loadingMore, hasMore]);
+    const sentinel = document.getElementById('scroll-sentinel');
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
+
+    return () => {
+      if (sentinel) {
+        observer.unobserve(sentinel);
+      }
+    };
+  }, [hasMore, loadingMore, page]);
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <div className="relative py-16 px-4 overflow-hidden">
-        {/* Image de fond */}
         <div className="absolute inset-0 z-0">
           <img
             src="/hero-image.png"
@@ -97,8 +99,6 @@ export default function Home() {
       <div className="container mx-auto px-4">
         <SearchForm />
 
-
-
         {/* Listings Section */}
         <div className="py-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Toutes les annonces</h2>
@@ -108,24 +108,22 @@ export default function Home() {
           ) : ads.length > 0 ? (
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ads.map((ad, index) => {
-                  // Ajouter ref au dernier élément pour infinite scroll
-                  if (ads.length === index + 1) {
-                    return <div key={ad.id} ref={lastAdRef}><AdCard ad={ad} /></div>;
-                  } else {
-                    return <AdCard key={ad.id} ad={ad} />;
-                  }
-                })}
+                {ads.map((ad) => (
+                  <AdCard key={ad.id} ad={ad} />
+                ))}
               </div>
 
-              {/* Indicateur de chargement pour infinite scroll */}
+              {/* Sentinel pour infinite scroll */}
+              <div id="scroll-sentinel" className="h-10"></div>
+
+              {/* Indicateur de chargement */}
               {loadingMore && (
                 <div className="mt-8 text-center">
                   <LoadingSpinner text="Chargement de plus d'annonces..." />
                 </div>
               )}
 
-              {/* Message quand il n'y a plus d'annonces */}
+              {/* Message fin */}
               {!hasMore && ads.length > 0 && (
                 <div className="mt-8 text-center text-gray-500">
                   Vous avez vu toutes les annonces disponibles
