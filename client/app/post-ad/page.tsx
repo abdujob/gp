@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDeliveryPersons, DeliveryPerson } from '../../hooks/useDeliveryPersons';
+import DeliveryPersonAutocomplete from '../../components/DeliveryPersonAutocomplete';
+import MonthDayPicker from '../../components/MonthDayPicker';
 
 function PostAdPageContent() {
     const router = useRouter();
@@ -22,12 +25,28 @@ function PostAdPageContent() {
     const [phone, setPhone] = useState('');
     const [advertiserName, setAdvertiserName] = useState('');
 
-    // Check if user is admin - ADMIN users must specify advertiser name
-    const isAdmin = user?.role === 'ADMIN';
+    // Admin-specific fields
+    const [deliveryPersonName, setDeliveryPersonName] = useState('');
+    const [deliveryPersonPhone, setDeliveryPersonPhone] = useState('');
+
+    // Check if user is admin
+    const isAdmin = user?.email === 'gp.notifs@gmail.com';
+
+    // Delivery persons hook (admin only)
+    const { getSuggestions, addPerson } = useDeliveryPersons();
 
     // Mock Coords (Real app would geocode address)
     const latitude = 48.8566;
     const longitude = 2.3522;
+
+    // Handle delivery person selection from autocomplete
+    const handlePersonSelect = (person: DeliveryPerson) => {
+        setDeliveryPersonName(person.nom);
+        setDeliveryPersonPhone(person.telephone);
+        setDepartureCity(person.ville_depart);
+        setArrivalCity(person.ville_arrivee);
+        setPrice(person.prix.toString());
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -48,16 +67,28 @@ function PostAdPageContent() {
         formData.append('available_date', availableDate);
         formData.append('transport_types', JSON.stringify(transportTypes));
         formData.append('price', price);
-        formData.append('phone', phone);
-        // Admin must specify advertiser name, LIVREUR_GP uses their own name
+        formData.append('phone', isAdmin ? deliveryPersonPhone : phone);
+        // Admin must specify advertiser name
         if (isAdmin) {
-            formData.append('advertiser_name', advertiserName);
+            formData.append('advertiser_name', deliveryPersonName);
         }
 
         try {
             await api.post('/ads', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+
+            // Save delivery person for future use (admin only)
+            if (isAdmin && deliveryPersonName) {
+                addPerson({
+                    nom: deliveryPersonName,
+                    telephone: deliveryPersonPhone,
+                    ville_depart: departureCity,
+                    ville_arrivee: arrivalCity,
+                    prix: parseFloat(price)
+                });
+            }
+
             router.push('/dashboard/my-ads');
         } catch (err: any) {
             console.error("Failed to post ad", err);
@@ -75,6 +106,38 @@ function PostAdPageContent() {
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                         {error}
+                    </div>
+                )}
+
+                {/* Admin-only fields */}
+                {isAdmin && (
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Informations du livreur</h3>
+
+                        <DeliveryPersonAutocomplete
+                            value={deliveryPersonName}
+                            onChange={setDeliveryPersonName}
+                            onSelect={handlePersonSelect}
+                            suggestions={getSuggestions(deliveryPersonName)}
+                            label="Nom du livreur"
+                            placeholder="Commencez à taper pour voir les suggestions..."
+                            required
+                        />
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Numéro de téléphone (WhatsApp) *
+                            </label>
+                            <input
+                                type="tel"
+                                value={deliveryPersonPhone}
+                                onChange={e => setDeliveryPersonPhone(e.target.value)}
+                                placeholder="+221 77 123 45 67"
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Ce numéro sera utilisé pour le contact WhatsApp</p>
+                        </div>
                     </div>
                 )}
 
@@ -108,15 +171,26 @@ function PostAdPageContent() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Date de départ</label>
-                        <input
-                            type="date"
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            value={availableDate}
-                            onChange={e => setAvailableDate(e.target.value)}
-                            disabled={loading}
-                        />
+                        {isAdmin ? (
+                            <MonthDayPicker
+                                value={availableDate}
+                                onChange={setAvailableDate}
+                                label="Date de départ"
+                                required
+                            />
+                        ) : (
+                            <>
+                                <label className="block text-sm font-medium text-gray-700">Date de départ</label>
+                                <input
+                                    type="date"
+                                    required
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                                    value={availableDate}
+                                    onChange={e => setAvailableDate(e.target.value)}
+                                    disabled={loading}
+                                />
+                            </>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Prix (€)</label>
