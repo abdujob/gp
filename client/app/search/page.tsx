@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import SearchForm from '../../components/SearchForm';
 import AdCard from '../../components/AdCard';
-import AdMap from '../../components/AdMap';
 import api from '../../lib/api';
 import { geocodeAddress } from '../../lib/utils';
 
@@ -70,9 +69,9 @@ function SearchContent() {
                 </div>
             )}
 
-            <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-200px)] min-h-[600px]">
+            <div className="flex flex-col gap-6">
                 {/* List View */}
-                <div className="w-full lg:w-1/2 overflow-y-auto pr-2 space-y-4">
+                <div className="w-full overflow-y-auto pr-2 space-y-4">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="font-bold text-gray-700">
                             {searchInfo?.total || 0} Annonce{(searchInfo?.total || 0) > 1 ? 's' : ''}
@@ -106,11 +105,6 @@ function SearchContent() {
                             )}
                         </div>
                     )}
-                </div>
-
-                {/* Map View */}
-                <div className="w-full lg:w-1/2 bg-gray-100 rounded-xl sticky top-20 h-full hidden lg:block overflow-hidden relative">
-                    <AdMap ads={ads} center={coords} />
                 </div>
             </div>
         </div>
