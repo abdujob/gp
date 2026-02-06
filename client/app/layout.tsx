@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AuthProvider } from '../contexts/AuthContext';
 import { defaultMetadata, structuredData } from '../lib/metadata';
+import GoogleAnalytics from '../components/GoogleAnalytics';
 
 // Fonts
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -22,6 +23,9 @@ export default function RootLayout({
   return (
     <html lang="fr-SN">
       <head>
+        {/* Google Analytics */}
+        <GoogleAnalytics />
+
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"

@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gp.senecoins.com/sitemap.xml
+# Pages à ne pas indexer
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /verify-email-notice
+Disallow: /reset-password
 
+Sitemap: https://gp.senecoins.com/sitemap.xml
