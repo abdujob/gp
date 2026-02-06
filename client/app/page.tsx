@@ -122,13 +122,6 @@ export default function Home() {
                   <LoadingSpinner text="Chargement de plus d'annonces..." />
                 </div>
               )}
-
-              {/* Message fin */}
-              {!hasMore && ads.length > 0 && (
-                <div className="mt-8 text-center text-gray-500">
-                  Vous avez vu toutes les annonces disponibles
-                </div>
-              )}
             </>
           ) : (
             <div className="bg-white rounded-xl border p-12 text-center text-gray-500">
