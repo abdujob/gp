@@ -171,26 +171,15 @@ function PostAdPageContent() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        {isAdmin ? (
-                            <MonthDayPicker
-                                value={availableDate}
-                                onChange={setAvailableDate}
-                                label="Date de départ"
-                                required
-                            />
-                        ) : (
-                            <>
-                                <label className="block text-sm font-medium text-gray-700">Date de départ</label>
-                                <input
-                                    type="date"
-                                    required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                                    value={availableDate}
-                                    onChange={e => setAvailableDate(e.target.value)}
-                                    disabled={loading}
-                                />
-                            </>
-                        )}
+                        <label className="block text-sm font-medium text-gray-700">Date de départ</label>
+                        <input
+                            type="date"
+                            required
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
+                            value={availableDate}
+                            onChange={e => setAvailableDate(e.target.value)}
+                            disabled={loading}
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Prix (€)</label>
@@ -244,34 +233,20 @@ function PostAdPageContent() {
                     <p className="mt-1 text-sm text-gray-500">Minimum 10 caractères si rempli</p>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Numéro de téléphone (WhatsApp)</label>
-                    <input
-                        type="tel"
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                        placeholder="+221 77 123 45 67"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        disabled={loading}
-                    />
-                    <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
-                </div>
-
-                {/* Nom du livreur (obligatoire pour admin uniquement) */}
-                {isAdmin && (
+                {/* Téléphone et Nom - uniquement pour non-admin */}
+                {!isAdmin && (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Nom du livreur *</label>
+                        <label className="block text-sm font-medium text-gray-700">Numéro de téléphone (WhatsApp)</label>
                         <input
-                            type="text"
+                            type="tel"
                             required
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
-                            placeholder="Nom du livreur pour cette annonce"
-                            value={advertiserName}
-                            onChange={e => setAdvertiserName(e.target.value)}
+                            placeholder="+221 77 123 45 67"
+                            value={phone}
+                            onChange={e => setPhone(e.target.value)}
                             disabled={loading}
                         />
-                        <p className="mt-1 text-sm text-gray-500">Spécifiez le nom du livreur pour cette annonce</p>
+                        <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
                     </div>
                 )}
 
