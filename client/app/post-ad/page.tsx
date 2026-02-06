@@ -7,7 +7,6 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDeliveryPersons, DeliveryPerson } from '../../hooks/useDeliveryPersons';
 import DeliveryPersonAutocomplete from '../../components/DeliveryPersonAutocomplete';
-import MonthDayPicker from '../../components/MonthDayPicker';
 
 function PostAdPageContent() {
     const router = useRouter();
@@ -23,7 +22,6 @@ function PostAdPageContent() {
     const [transportTypes, setTransportTypes] = useState<string[]>([]);
     const [price, setPrice] = useState('');
     const [phone, setPhone] = useState('');
-    const [advertiserName, setAdvertiserName] = useState('');
 
     // Admin-specific fields
     const [deliveryPersonName, setDeliveryPersonName] = useState('');
@@ -109,11 +107,9 @@ function PostAdPageContent() {
                     </div>
                 )}
 
-                {/* Admin-only fields */}
+                {/* Admin-only fields - Nom et téléphone du livreur */}
                 {isAdmin && (
-                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Informations du livreur</h3>
-
+                    <>
                         <DeliveryPersonAutocomplete
                             value={deliveryPersonName}
                             onChange={setDeliveryPersonName}
@@ -125,7 +121,7 @@ function PostAdPageContent() {
                         />
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700">
                                 Numéro de téléphone (WhatsApp) *
                             </label>
                             <input
@@ -134,11 +130,11 @@ function PostAdPageContent() {
                                 onChange={e => setDeliveryPersonPhone(e.target.value)}
                                 placeholder="+221 77 123 45 67"
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary h-10 border px-3"
                             />
-                            <p className="text-xs text-gray-500 mt-1">Ce numéro sera utilisé pour le contact WhatsApp</p>
+                            <p className="mt-1 text-sm text-gray-500">Ce numéro sera utilisé pour le contact WhatsApp</p>
                         </div>
-                    </div>
+                    </>
                 )}
 
                 {/* Villes de départ et d'arrivée */}
@@ -233,7 +229,7 @@ function PostAdPageContent() {
                     <p className="mt-1 text-sm text-gray-500">Minimum 10 caractères si rempli</p>
                 </div>
 
-                {/* Téléphone et Nom - uniquement pour non-admin */}
+                {/* Téléphone - uniquement pour non-admin */}
                 {!isAdmin && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Numéro de téléphone (WhatsApp)</label>
@@ -254,22 +250,19 @@ function PostAdPageContent() {
 
                 <button
                     type="submit"
-                    disabled={loading || transportTypes.length === 0}
-                    className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={loading}
+                    className="w-full bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                    {loading ? 'Publication...' : 'Publier l\'annonce'}
+                    {loading ? 'Publication en cours...' : 'Publier l\'annonce'}
                 </button>
             </form>
         </div>
     );
 }
 
-/**
- * Page protégée - Accessible aux LIVREUR_GP et ADMIN
- */
 export default function PostAdPage() {
     return (
-        <ProtectedRoute allowedRoles={['LIVREUR_GP', 'ADMIN']}>
+        <ProtectedRoute>
             <PostAdPageContent />
         </ProtectedRoute>
     );
