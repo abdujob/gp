@@ -15,6 +15,8 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -50,28 +52,41 @@ export default function Home() {
 
   // Infinite scroll avec Intersection Observer
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchAds(nextPage);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const sentinel = document.getElementById('scroll-sentinel');
-    if (sentinel) {
-      observer.observe(sentinel);
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
     }
 
+    // Create new observer
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          console.log('Loading more ads, current page:', page);
+          setPage(prevPage => {
+            const nextPage = prevPage + 1;
+            fetchAds(nextPage);
+            return nextPage;
+          });
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px' // Start loading before reaching the sentinel
+      }
+    );
+
+    // Observe the sentinel
+    if (sentinelRef.current) {
+      observerRef.current.observe(sentinelRef.current);
+    }
+
+    // Cleanup on unmount
     return () => {
-      if (sentinel) {
-        observer.unobserve(sentinel);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
       }
     };
-  }, [hasMore, loadingMore, page]);
+  }, [hasMore, loadingMore, loading, page]);
 
   return (
     <div className="min-h-screen">
@@ -114,12 +129,19 @@ export default function Home() {
               </div>
 
               {/* Sentinel pour infinite scroll */}
-              <div id="scroll-sentinel" className="h-10"></div>
-
-              {/* Indicateur de chargement */}
-              {loadingMore && (
-                <div className="mt-8 text-center">
+              <div
+                ref={sentinelRef}
+                className="h-20 flex items-center justify-center"
+              >
+                {loadingMore && (
                   <LoadingSpinner text="Chargement de plus d'annonces..." />
+                )}
+              </div>
+
+              {/* Message quand il n'y a plus d'annonces */}
+              {!hasMore && !loadingMore && (
+                <div className="mt-4 text-center text-gray-500 text-sm">
+                  Toutes les annonces ont été chargées
                 </div>
               )}
             </>
