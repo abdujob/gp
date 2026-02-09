@@ -99,21 +99,30 @@ router.post('/', [
 
         // Gérer le nom de l'annonceur selon le rôle
         let finalAdvertiserName;
+        console.log('=== DEBUG ADVERTISER NAME ===');
+        console.log('User role:', req.user.role);
+        console.log('advertiser_name from request:', advertiser_name);
+
         if (req.user.role === 'ADMIN') {
             // Admin DOIT spécifier le nom du livreur
             if (!advertiser_name || advertiser_name.trim() === '') {
+                console.log('ERROR: Admin did not provide advertiser_name');
                 return res.status(400).json({
                     msg: 'En tant qu\'administrateur, vous devez spécifier le nom du livreur',
                     code: 'ADVERTISER_NAME_REQUIRED'
                 });
             }
             finalAdvertiserName = advertiser_name;
+            console.log('Final advertiser name (ADMIN):', finalAdvertiserName);
         } else {
             // LIVREUR_GP utilise son propre nom (ignoré si fourni)
             finalAdvertiserName = null;
+            console.log('Final advertiser name (LIVREUR_GP): null');
         }
 
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+        console.log('About to insert ad with advertiser_name:', finalAdvertiserName);
 
         const newAd = await pool.query(
             `INSERT INTO ads (
@@ -130,6 +139,9 @@ router.post('/', [
                 departure_city, arrival_city
             ]
         );
+
+        console.log('Ad created with advertiser_name:', newAd.rows[0].advertiser_name);
+        console.log('=== END DEBUG ===');
 
         res.json(newAd.rows[0]);
 
