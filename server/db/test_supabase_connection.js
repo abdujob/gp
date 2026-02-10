@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 
 // Test de connexion à Supabase
 const pool = new Pool({
-    connectionString: 'postgresql://postgres:FYMTeVgMiPIKXapc@db.quogoyzlifsxrrgbdtmj.supabase.co:5432/postgres',
+    connectionString: 'postgresql://postgres.quogoyzlifsxrrgbdtmj:NjOzcXkIUDUO9TPC@aws-1-eu-west-3.pooler.supabase.com:6543/postgres',
     ssl: {
         rejectUnauthorized: false
     }

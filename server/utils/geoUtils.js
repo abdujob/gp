@@ -104,8 +104,8 @@ function calculateRelevanceScore(ad, searchParams, distances) {
     }
 
     // Correspondance exacte ville d'arrivée (40 points)
-    if (searchParams.arriveeCity && ad.destination_city) {
-        if (ad.destination_city.toLowerCase() === searchParams.arriveeCity.toLowerCase()) {
+    if (searchParams.arriveeCity && ad.arrival_city) {
+        if (ad.arrival_city.toLowerCase() === searchParams.arriveeCity.toLowerCase()) {
             score += 40;
         } else if (distances.arrivee !== null) {
             // Proximité géographique arrivée (0-30 points)

@@ -595,7 +595,7 @@ async function searchExact(depart, arrivee, date, type) {
     }
 
     if (arrivee) {
-        conditions.push(`LOWER(destination_city) = LOWER(${paramIndex})`);
+        conditions.push(`LOWER(arrival_city) = LOWER(${paramIndex})`);
         values.push(arrivee);
         paramIndex++;
     }
@@ -810,16 +810,18 @@ router.put('/:id', [auth, requireLivreurGP, upload.single('image')], async (req,
                 available_date = COALESCE($7, available_date),
                 transport_type = COALESCE($8, transport_type),
                 weight_capacity = COALESCE($9, weight_capacity),
-                price = COALESCE($10, price)
+                price = COALESCE($10, price),
+                departure_city = COALESCE($11, departure_city),
+                arrival_city = COALESCE($12, arrival_city)
         `;
 
         const queryParams = [
             title, description, address, city,
             latitude, longitude, available_date, transport_type,
-            weight_capacity, price
+            weight_capacity, price, departure_city, arrival_city
         ];
 
-        let paramIndex = 11;
+        let paramIndex = 13;
         if (image_url) {
             updateQuery += `, image_url = $${paramIndex}`;
             queryParams.push(image_url);
@@ -977,12 +979,11 @@ async function searchByProximity(departCoords, arriveeCoords, radius, date, type
             matchDepart = distDepart <= radius;
         }
 
-        if (arriveeCoords && ad.destination_lat) {
-            const distArrivee = calculateDistance(
-                arriveeCoords.lat, arriveeCoords.lng,
-                ad.destination_lat, ad.destination_lng
-            );
-            matchArrivee = distArrivee <= radius;
+        if (arriveeCoords) {
+            // For now, since we only have one set of coords, 
+            // proximity search on arrival is simplified to just name match
+            // or we could use the start coords if it makes sense (not really).
+            matchArrivee = ad.arrival_city && ad.arrival_city.toLowerCase() === arriveeCoords.city?.toLowerCase();
         }
 
         return matchDepart && matchArrivee;

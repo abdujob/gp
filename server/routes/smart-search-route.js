@@ -280,7 +280,7 @@ async function searchExact(depart, arrivee, date, type) {
     }
 
     if (arrivee) {
-        conditions.push(`LOWER(destination_city) = LOWER($${paramIndex})`);
+        conditions.push(`LOWER(arrival_city) = LOWER($${paramIndex})`);
         values.push(arrivee);
         paramIndex++;
     }
