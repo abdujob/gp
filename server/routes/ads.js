@@ -894,13 +894,13 @@ async function searchExact(depart, arrivee, date, type) {
     let paramIndex = 1;
 
     if (depart) {
-        conditions.push(`LOWER(city) = LOWER($${paramIndex})`);
+        conditions.push(`LOWER(departure_city) = LOWER($${paramIndex})`);
         values.push(depart);
         paramIndex++;
     }
 
     if (arrivee) {
-        conditions.push(`LOWER(destination_city) = LOWER($${paramIndex})`);
+        conditions.push(`LOWER(arrival_city) = LOWER($${paramIndex})`);
         values.push(arrivee);
         paramIndex++;
     }
