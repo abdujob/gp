@@ -1,0 +1,4 @@
+# Hotfix deployed - Server crash resolved
+
+The `countQuery is not defined` error has been fixed.
+Render should automatically redeploy within 1-2 minutes.
