@@ -46,6 +46,27 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/api/test-db', async (req, res) => {
+    try {
+        const pool = require('./db');
+        const start = Date.now();
+        const result = await pool.query('SELECT NOW()');
+        const duration = Date.now() - start;
+        res.json({
+            success: true,
+            db_time: result.rows[0].now,
+            duration_ms: duration,
+            message: 'Connexion à la base de données réussie'
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message,
+            stack: err.stack
+        });
+    }
+});
+
 // API Routes
 const authRoutes = require('./routes/auth');
 const adRoutes = require('./routes/ads');
