@@ -189,15 +189,14 @@ router.get('/my', [auth, requireLivreurGP], async (req, res) => {
 // @access  Public
 router.get('/', async (req, res) => {
     const { lat, lng, radius, type, date, limit = 10, page = 1 } = req.query;
-    const startTime = Date.now();
-    console.log(`[DEBUG] GET /ads started - page: ${page}, limit: ${limit}`);
 
     try {
         let conditions = [];
         let values = [];
         let selectDistance = "";
-        let orderBy = "available_date ASC";
+        let orderBy = "available_date ASC"; // Default sort: closest date
 
+        // Pagination
         const limitVal = parseInt(limit);
         const pageVal = parseInt(page);
         const offset = (pageVal - 1) * limitVal;
@@ -276,11 +275,19 @@ router.get('/', async (req, res) => {
 
         let whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
 
-        console.log(`[DEBUG] Executing count query...`);
+        // Count for pagination
+        const countQuery = `
+            SELECT COUNT(*) 
+            FROM ads 
+            ${whereClause}
+        `;
+        // For count query, we need strictly the values used in WHERE.
+        // The distance logic uses $1, $2 which might be in WHERE if radius is checked.
+        // It's safe to reuse 'values' array because it contains all params needed.
+
         const countResult = await pool.query(countQuery, values);
         const totalItems = parseInt(countResult.rows[0].count);
         const totalPages = Math.ceil(totalItems / limitVal);
-        console.log(`[DEBUG] Count done: ${totalItems} items`);
 
         // Main Query
         values.push(limitVal); // Limit
@@ -299,12 +306,7 @@ router.get('/', async (req, res) => {
             LIMIT $${values.length - 1} OFFSET $${values.length}
         `;
 
-        console.log(`[DEBUG] Executing main query...`);
         const result = await pool.query(text, values);
-        console.log(`[DEBUG] Query done: ${result.rows.length} rows returned`);
-
-        const duration = Date.now() - startTime;
-        console.log(`[DEBUG] GET /ads finished in ${duration}ms`);
 
         res.json({
             data: result.rows,
