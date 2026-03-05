@@ -139,42 +139,19 @@ Les fichiers suivants contiennent les deux configs (production et locale) sous f
 #### `server/.env`
 
 ```env
-# Commenter la ligne Supabase :
-# DATABASE_URL=postgresql://postgres.xxx@supabase.com/postgres
 
-# Décommenter la ligne Docker locale :
 DATABASE_URL=postgresql://admin:password123@localhost:5432/sendvoyage
 ```
 
 #### `client/.env.production`
 
-```env
-# Commenter l'URL Render :
-# NEXT_PUBLIC_API_URL=https://gp-backend-skwd.onrender.com/api
 
-# Décommenter l'URL locale :
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
-> 💡 Les commentaires sont déjà présents dans les fichiers, il suffit d'activer/désactiver les bonnes lignes.
 
 ### 4. Installer les dépendances et démarrer
 
-**Backend :**
-```bash
-cd server
-npm install
-npm start
-# → http://localhost:5000
-```
+
 
 **Frontend** (dans un second terminal) :
-```bash
-cd client
-npm install
-npm run dev
-# → http://localhost:3000
-```
 
 ### Résumé des URLs en local
 
@@ -185,36 +162,6 @@ npm run dev
 | PostgreSQL | localhost:5432 |
 
 ---
-
-## Variables d'environnement
-
-Copiez `.env.example` et renseignez les valeurs suivantes :
-
-```env
-# Serveur
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-
-# Base de données PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=yourpassword
-DB_NAME=gp_db
-
-# JWT
-JWT_ACCESS_SECRET=your_access_secret
-JWT_REFRESH_SECRET=your_refresh_secret
-
-# Email (SMTP)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_smtp_user@example.com
-SMTP_PASS=your_smtp_password
-EMAIL_FROM=no-reply@example.com
-```
 
 ---
 
@@ -257,6 +204,4 @@ Le projet supporte plusieurs plateformes de déploiement :
 
 ---
 
-## Licence
 
-Ce projet est développé dans le cadre d'un projet de fin d'études (GP).
